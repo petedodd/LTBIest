@@ -7,7 +7,7 @@ load('data/POP2014.Rdata')                   #population data
 load('data/POP2035.Rdata')
 load('data/POP2050.Rdata')
 load('data/POP1997.Rdata')
-load('data/DSN2.Rdata') #INH data
+load('data/DSN2.Rdata') #INH data from Dodd,Sismanidis,Seddon
 
 All <- All[All$lari!=-Inf,]
 cnz <- unique(as.character(All$iso3))
