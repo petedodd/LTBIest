@@ -70,7 +70,7 @@ NH[is.na(cdr),]                         #check: none
 NH[cdr>1]$vcdr <- 0                     #cap CDR for this
 NH[cdr>1]$cdr <- 1
 NH[is.na(vp)]$vp <- 0                   #these are where p=1
-
+NH2 <- copy(NH)                         #for sense below
 ## T1 = CDR.T1n + (1-CDR).T1u
 ## T2 = CDR.T2n + (1-CDR).T2u
 ## var(T) ~= (Tn-Tu)^2.var(CDR)  + CDR^2.var(Tn) + (1-CDR)^2.var(Tu)
@@ -97,8 +97,8 @@ NH[,vlS:= vp*(p*(1-p)*(1-mf)*T1/(A*B))^2 +
        (T1^2*vT2+T2^2*vT1)*(p*(1-p)*(1-mf)/(A*B))^2 +
            vf*(p*T2/A)^2]               # varlogS/logS^2=E^2
 NH[,S:= A/B]                            #S - fraction redn
+NH3 <- copy(NH)                         #for sense below
 NH <- NH[,list(iso3,year,vlS,S)]
-
 
 ## kids-------
 ## Kunkel review...
@@ -176,5 +176,17 @@ All <- rbind(CE,Nrc,CE2)
 
 save(All,file='data/All_3.Rdata')
 
-
+## sensitivity to HIV+ CDR
+NH2[,cdr2:=1.0]
+NH2[,T1:=cdr*(2+.2)/2+(1-cdr)*(4+1)/2]
+NH2[,T2:=cdr2*(1+.01)/2+(1-cdr2)*(.2+.01)/2]
+NH2[,vT1:=vcdr*.25*(2+.2-4-1)^2 + cdr^2*(2-.2)^2/12 + (1-cdr)^2*(4-1)^2/12]
+NH2[,vT2:=vcdr*.25*(1+.01-.2-.01)^2 + cdr2^2*(1-.01)^2/12 + (1-cdr2)^2*(.2-.01)^2/12]
+NH2[,A:=(p*T2*mf + (1-p)*T1)]
+NH2[,B:=(p*T2 + (1-p)*T1)]
+NH2[,vlS:= vp*(p*(1-p)*(1-mf)*T1/(A*B))^2 +
+       (T1^2*vT2+T2^2*vT1)*(p*(1-p)*(1-mf)/(A*B))^2 +
+           vf*(p*T2/A)^2]               # varlogS/logS^2=E^2
+NH2[,S:= A/B]                            #S - fraction redn
+summary(1e2*(1-NH2$S/NH3$S))             #0.14% IQR=[0.04 - 0.55]
 
